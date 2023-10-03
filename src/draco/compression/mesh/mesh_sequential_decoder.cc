@@ -53,7 +53,7 @@ bool MeshSequentialDecoder::DecodeConnectivity() {
   if (faces_64 > 0xffffffff / 3) {
     return false;
   }
-  if (faces_64 > buffer()->remaining_size() / 3) {
+  if (faces_64 > static_cast<uint64_t>(buffer()->remaining_size() / 3)) {
     // The number of faces is unreasonably high, because face indices do not
     // fit in the remaining size of the buffer.
     return false;

@@ -160,7 +160,7 @@ bool MeshPredictionSchemeTexCoordsPortablePredictor<
       //
       //      x_uv = X_UV * PN.Norm2Squared()
       //
-      const int64_t n_uv_absmax_element =
+      const uint64_t n_uv_absmax_element =
           std::max(std::abs(n_uv[0]), std::abs(n_uv[1]));
       if (n_uv_absmax_element >
           std::numeric_limits<int64_t>::max() / pn_norm2_squared) {

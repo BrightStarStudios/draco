@@ -51,8 +51,8 @@ bool AttributeOctahedronTransform::InverseTransformAttribute(
     return false;
   }
 
-  const int num_points = target_attribute->size();
-  const int num_components = target_attribute->num_components();
+  const std::size_t num_points = target_attribute->size();
+  const uint8_t num_components = target_attribute->num_components();
   if (num_components != 3) {
     return false;
   }
@@ -66,7 +66,7 @@ bool AttributeOctahedronTransform::InverseTransformAttribute(
   if (!octahedron_tool_box.SetQuantizationBits(quantization_bits_)) {
     return false;
   }
-  for (uint32_t i = 0; i < num_points; ++i) {
+  for (std::size_t i = 0; i < num_points; ++i) {
     const int32_t s = *source_attribute_data++;
     const int32_t t = *source_attribute_data++;
     octahedron_tool_box.QuantizedOctahedralCoordsToUnitVector(s, t, att_val);

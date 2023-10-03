@@ -212,7 +212,7 @@ bool MeshPredictionSchemeConstrainedMultiParallelogramDecoder<
     if (!DecodeVarint<uint32_t>(&num_flags, buffer)) {
       return false;
     }
-    if (num_flags > this->mesh_data().corner_table()->num_corners()) {
+    if (num_flags > static_cast<uint32_t>(this->mesh_data().corner_table()->num_corners())) {
       return false;
     }
     if (num_flags > 0) {

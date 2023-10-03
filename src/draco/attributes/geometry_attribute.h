@@ -349,27 +349,28 @@ class GeometryAttribute {
   static bool ConvertComponentValue(const T &in_value, bool normalized,
                                     OutT *out_value) {
     // Make sure the |in_value| can be represented as an integral type OutT.
-    if (std::is_integral<OutT>::value) {
+    if constexpr (std::is_integral<OutT>::value) {
       // Make sure the |in_value| fits within the range of values that OutT
       // is able to represent. Perform the check only for integral types.
-      if (!std::is_same<T, bool>::value && std::is_integral<T>::value) {
+      if constexpr (!std::is_same<T, bool>::value && std::is_integral<T>::value) {
         static constexpr OutT kOutMin =
             std::is_signed<T>::value ? std::numeric_limits<OutT>::min() : 0;
-        if (in_value < kOutMin || in_value > std::numeric_limits<OutT>::max()) {
+
+        if (in_value < kOutMin || static_cast<uintmax_t>(in_value) > static_cast<uintmax_t>(std::numeric_limits<OutT>::max())) {
           return false;
         }
       }
 
       // Check conversion of floating point |in_value| to integral value OutT.
-      if (std::is_floating_point<T>::value) {
+      if constexpr (std::is_floating_point<T>::value) {
         // Make sure the floating point |in_value| is not NaN and not Inf as
         // integral type OutT is unable to represent these values.
-        if (sizeof(in_value) > sizeof(double)) {
+        if constexpr (sizeof(T) > sizeof(double)) {
           if (std::isnan(static_cast<long double>(in_value)) ||
               std::isinf(static_cast<long double>(in_value))) {
             return false;
           }
-        } else if (sizeof(in_value) > sizeof(float)) {
+        } else if constexpr (sizeof(T) > sizeof(float)) {
           if (std::isnan(static_cast<double>(in_value)) ||
               std::isinf(static_cast<double>(in_value))) {
             return false;
@@ -383,41 +384,45 @@ class GeometryAttribute {
 
         // Make sure the floating point |in_value| fits within the range of
         // values that integral type OutT is able to represent.
-        if (in_value < std::numeric_limits<OutT>::min() ||
-            in_value >= std::numeric_limits<OutT>::max()) {
+        if (in_value < static_cast<T>(std::numeric_limits<OutT>::min()) ||
+            in_value >= static_cast<T>(std::numeric_limits<OutT>::max())) {
           return false;
         }
       }
     }
 
-    if (std::is_integral<T>::value && std::is_floating_point<OutT>::value &&
-        normalized) {
-      // When converting integer to floating point, normalize the value if
-      // necessary.
-      *out_value = static_cast<OutT>(in_value);
-      *out_value /= static_cast<OutT>(std::numeric_limits<T>::max());
-    } else if (std::is_floating_point<T>::value &&
-               std::is_integral<OutT>::value && normalized) {
-      // Converting from floating point to a normalized integer.
-      if (in_value > 1 || in_value < 0) {
-        // Normalized float values need to be between 0 and 1.
-        return false;
+    if (normalized) {
+      if constexpr (std::is_integral<T>::value && std::is_floating_point<OutT>::value) {
+        // When converting integer to floating point, normalize the value if
+        // necessary.
+        *out_value = static_cast<OutT>(in_value);
+        *out_value /= static_cast<OutT>(std::numeric_limits<T>::max());
+        return true;
+      } else if constexpr (std::is_floating_point<T>::value && std::is_integral<OutT>::value) {
+        // Converting from floating point to a normalized integer.
+        if (in_value > 1 || in_value < 0) {
+          // Normalized float values need to be between 0 and 1.
+          return false;
+        }
+        // TODO(ostava): Consider allowing float to normalized integer
+        // conversion for 64-bit integer types. Currently it doesn't work
+        // because we don't have a floating point type that could store all 64
+        // bit integers.
+        if constexpr (sizeof(OutT) > 4) {
+          return false;
+        }
+        // Expand the float to the range of the output integer and round it to
+        // the nearest representable value. Use doubles for the math to ensure
+        // the integer values are represented properly during the conversion
+        // process.
+        *out_value = static_cast<OutT>(std::floor(
+            in_value * static_cast<double>(std::numeric_limits<OutT>::max()) +
+            0.5));
+        return true;
       }
-      // TODO(ostava): Consider allowing float to normalized integer conversion
-      // for 64-bit integer types. Currently it doesn't work because we don't
-      // have a floating point type that could store all 64 bit integers.
-      if (sizeof(OutT) > 4) {
-        return false;
-      }
-      // Expand the float to the range of the output integer and round it to the
-      // nearest representable value. Use doubles for the math to ensure the
-      // integer values are represented properly during the conversion process.
-      *out_value = static_cast<OutT>(std::floor(
-          in_value * static_cast<double>(std::numeric_limits<OutT>::max()) +
-          0.5));
-    } else {
-      *out_value = static_cast<OutT>(in_value);
-    }
+    } 
+
+    *out_value = static_cast<OutT>(in_value);
 
     // TODO(ostava): Add handling of normalized attributes when converting
     // between different integer representations. If the attribute is

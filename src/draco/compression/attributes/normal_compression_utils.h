@@ -208,8 +208,7 @@ class OctahedronToolBox {
     DRACO_DCHECK_LE(t, center_value_);
     DRACO_DCHECK_GE(s, -center_value_);
     DRACO_DCHECK_GE(t, -center_value_);
-    const uint32_t st =
-        static_cast<uint32_t>(std::abs(s)) + static_cast<uint32_t>(std::abs(t));
+    const int32_t st = static_cast<int32_t>(static_cast<uint32_t>(std::abs(s)) + static_cast<uint32_t>(std::abs(t)));
     return st <= center_value_;
   }
 
