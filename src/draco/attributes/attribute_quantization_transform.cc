@@ -85,9 +85,9 @@ bool AttributeQuantizationTransform::InverseTransformAttribute(
       reinterpret_cast<const int32_t *>(
           attribute.GetAddress(AttributeValueIndex(0)));
 
-  const int num_values = target_attribute->size();
+  const std::size_t num_values = target_attribute->size();
 
-  for (uint32_t i = 0; i < num_values; ++i) {
+  for (std::size_t i = 0; i < num_values; ++i) {
     for (int c = 0; c < num_components; ++c) {
       float value =
           dequantizer.DequantizeFloat(source_attribute_data[quant_val_id++]);

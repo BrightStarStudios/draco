@@ -53,7 +53,7 @@ bool MeshSequentialDecoder::DecodeConnectivity() {
   if (faces_64 > 0xffffffff / 3) {
     return false;
   }
-  if (faces_64 > buffer()->remaining_size() / 3) {
+  if (faces_64 > static_cast<uint64_t>(buffer()->remaining_size() / 3)) {
     // The number of faces is unreasonably high, because face indices do not
     // fit in the remaining size of the buffer.
     return false;
@@ -158,6 +158,10 @@ bool MeshSequentialDecoder::DecodeAndDecompressIndices(uint32_t num_faces) {
         index_diff = -index_diff;
       }
       const int32_t index_value = index_diff + last_index_value;
+      if (index_value < 0) {
+        // Negative indices are not allowed.
+        return false;
+      }
       face[j] = index_value;
       last_index_value = index_value;
     }
