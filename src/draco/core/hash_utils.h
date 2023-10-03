@@ -23,15 +23,15 @@
 namespace draco {
 
 template <typename T1, typename T2>
-size_t HashCombine(T1 a, T2 b) {
-  const size_t hash1 = std::hash<T1>()(a);
-  const size_t hash2 = std::hash<T2>()(b);
+std::size_t HashCombine(T1 a, T2 b) {
+  const std::size_t hash1 = std::hash<T1>()(a);
+  const std::size_t hash2 = std::hash<T2>()(b);
   return (hash1 << 2) ^ (hash2 << 1);
 }
 
 template <typename T>
-size_t HashCombine(T a, size_t hash) {
-  const size_t hasha = std::hash<T>()(a);
+std::size_t HashCombine(T a, std::size_t hash) {
+  const std::size_t hasha = std::hash<T>()(a);
   return (hash) ^ (hasha + 239);
 }
 
@@ -40,13 +40,13 @@ inline uint64_t HashCombine(uint64_t a, uint64_t b) {
 }
 
 // Will never return 1 or 0.
-uint64_t FingerprintString(const char *s, size_t len);
+uint64_t FingerprintString(const char *s, std::size_t len);
 
 // Hash for std::array.
 template <typename T>
 struct HashArray {
-  size_t operator()(const T &a) const {
-    size_t hash = 79;  // Magic number.
+  std::size_t operator()(const T &a) const {
+    std::size_t hash = 79;  // Magic number.
     for (unsigned int i = 0; i < std::tuple_size<T>::value; ++i) {
       hash = HashCombine(hash, ValueHash(a[i]));
     }
@@ -54,7 +54,7 @@ struct HashArray {
   }
 
   template <typename V>
-  size_t ValueHash(const V &val) const {
+  std::size_t ValueHash(const V &val) const {
     return std::hash<V>()(val);
   }
 };
