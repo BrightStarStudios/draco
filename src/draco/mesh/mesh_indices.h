@@ -1,4 +1,4 @@
-// Copyright 2016 The Draco Authors.
+// Copyright 2022 The Draco Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "draco/mesh/mesh_connected_components.h"
+#ifdef DRACO_TRANSCODER_SUPPORTED
+#ifndef DRACO_MESH_MESH_INDICES_H_
+#define DRACO_MESH_MESH_INDICES_H_
+
+#include <inttypes.h>
+
+#include <limits>
+
+#include "draco/core/draco_index_type.h"
 
 namespace draco {
 
-MeshConnectedComponents::MeshConnectedComponents() {}
+// Index of a mesh feature ID set.
+DEFINE_NEW_DRACO_INDEX_TYPE(uint32_t, MeshFeaturesIndex)
+
+// Constants denoting invalid indices.
+static constexpr MeshFeaturesIndex kInvalidMeshFeaturesIndex(
+    std::numeric_limits<uint32_t>::max());
 
 }  // namespace draco
+
+#endif  // DRACO_MESH_MESH_INDICES_H_
+#endif  // DRACO_TRANSCODER_SUPPORTED

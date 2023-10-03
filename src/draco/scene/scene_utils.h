@@ -115,7 +115,7 @@ class SceneUtils {
     bool remove_unused_mesh_groups = true;
     bool remove_unused_meshes = true;
     bool remove_unused_nodes = false;
-    bool remove_unused_tex_coords = true;
+    bool remove_unused_tex_coords = false;
     bool remove_unused_materials = true;
   };
   static void Cleanup(Scene *scene);
@@ -137,6 +137,11 @@ class SceneUtils {
 
   // Returns true if geometry compression is eabled for any of |scene| meshes.
   static bool IsDracoCompressionEnabled(const Scene &scene);
+
+  // Returns a single tranformation matrix for each base mesh of the |scene|
+  // corresponding to the instance with the maximum scale.
+  static IndexTypeVector<MeshIndex, Eigen::Matrix4d>
+  FindLargestBaseMeshTransforms(const Scene &scene);
 };
 
 }  // namespace draco
